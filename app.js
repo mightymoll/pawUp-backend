@@ -26,6 +26,7 @@ mongoose.connect(url)
 
 /** MODELS **/
 const User = require('./models/User');
+const Animal = require('./models/Animal');
 
 /** ROUTES **/
 app.get('/', function (req, res) {
@@ -37,9 +38,9 @@ app.get('/inscription', function (req, res) {
   res.render('Inscription');
 });
 
-// POST request to add a new contact to DB
+// POST request to add a new user to DB
 app.post('/api/signup', function (req, res) {
-  // create a new instance of 'Contact' model
+  // create a new instance of 'User' model
   const Data = new User({
     lastName: req.body.lastName,
     firstName: req.body.firstName,
@@ -91,8 +92,28 @@ app.post('/api/login', function (req, res) {
     .catch(err => console.log(err));
 });
 
-app.get('/api/addAnimal', function (req, res) {
+// AddAnimal Page : form to add a new animal to DB
+app.get('/addAnimal', function (req, res) {
   res.render('AddAnimal');
+});
+
+// POST request to add a new animal to DB
+app.post('/api/addAnimal', function (req, res) {
+  const Data = new Animal({
+    numICAD: req.body.numICAD,
+    name: req.body.name,
+    desc: req.body.desc,
+    sex: req.body.sex,
+    race: req.body.race,
+    birthDay: req.body.birthDay,
+  })
+  // save/add animal data to DB
+  Data.save()
+    .then(() => {
+      console.log('animal added to DB 🐾');
+      res.redirect('/');
+    })
+    .catch(err => console.log(err));
 });
 
 // create server on localhost @ port 5001 (5000 is taken by default on mac)
