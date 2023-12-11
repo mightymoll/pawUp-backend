@@ -125,6 +125,36 @@ app.post('/api/addAnimal', function (req, res) {
     .catch(err => console.log(err));
 });
 
+// Edit Animal : form to edit an existing animal
+app.get('/editAnimal/:id', function (req, res) {
+  // get one contact matching id from url w/'params' and render in 'Edit' view
+  Animal.findOne({ _id: req.params.id })
+    .then((data) => {
+      res.render('EditAnimal', { animal: data });
+    })
+    .catch(err => console.log(err));
+});
+
+// PUT request to update existing animal in DB
+app.put('/update-animal/:id', function (req, res) {
+  const Data = {
+    numICAD: req.body.numICAD,
+    name: req.body.name,
+    desc: req.body.desc,
+    sex: req.body.sex,
+    race: req.body.race,
+    birthDay: req.body.birthDay,
+  }
+  console.log(Data);
+
+  Animal.updateOne({ _id: req.params.id }, { $set: Data })
+    .then((result) => {
+      console.log('animal updated in DB');
+      res.redirect('/ManageAnimals');
+    })
+    .catch(err => console.log(err));
+});
+
 // create server on localhost @ port 5001 (5000 is taken by default on mac)
 const server = app.listen(5001, function (res, req) {
   console.log("Server is running on port : 5001 / serveur est lancé 🏃");

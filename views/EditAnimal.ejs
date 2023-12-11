@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modifier Animal</title>
+</head>
+
+<body>
+  <h1>Modifier Animal</h1>
+  <!-- activate/use method-overwrite with ?_method= -->
+  <form action="/update-animal/<%=animal._id%>?_method=PUT" method="POST">
+    <!-- ** OBLIGATOIRE ** -->
+    <input type="hidden" name="_method" value="PUT">
+
+    <label for="numICAD">Indentification I-CAD : </label>
+    <input type="text" name="numICAD" value="<%=animal.numICAD%>">
+    <br>
+    <label for="name">Nom d'animal : </label>
+    <input type="text" name="name" required value="<%=animal.name%>">
+    <br>
+    <label for="desc">Description d'animal :</label>
+    <textarea name="desc">
+      <%=animal.desc%>
+    </textarea>
+    <br>
+    <label for="sex">Sexe : <%=animal.sex%></label>
+    <input type="radio" name="sex" value="male"><label for="male">Male</label>
+    <input type="radio" name="sex" value="femelle"><label for="femelle">Femelle</label>
+    <br>
+    <label for="race">Race : <%=animal.race%></label>
+    <select name="race" id="race">
+      <option value="auccun">Auccun/Mixte</option>
+      <option value="race1">Race1</option>
+      <option value="race2">Race2</option>
+      <option value="race3">Race3</option>
+    </select>
+    <br>
+    <label for="birthDay">Date de naissance : <%=animal.birthDay%></label>
+    <input type="date" name="birthDay">
+    <br>
+    <input type="submit" value="submit">
+  </form>
+</body>
+
+</html>
