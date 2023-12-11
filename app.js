@@ -30,7 +30,12 @@ const Animal = require('./models/Animal');
 
 /** ROUTES **/
 app.get('/', function (req, res) {
-  res.render('Home');
+  // render cards of newest 4 animals from DB
+  Animal.find().sort({ "datetime": -1 }).limit(4)
+    .then((data) => {
+      res.render('Home', { animalData: data });
+    })
+    .catch(err => console.log(err));
 });
 
 // Inscription Page : form for user inscription
