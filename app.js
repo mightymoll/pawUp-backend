@@ -82,13 +82,22 @@ app.post('/api/login', function (req, res) {
       else {
         if (user.admin == true) {
           // TO DO : create admin dashboard page
-          res.render('AddAnimal');
+          res.render('ManageAnimals');
         }
         // TO DO : show user's saved animals list
         res.render('Home');
       }
     })
     //catch errors
+    .catch(err => console.log(err));
+});
+
+// Manage Animals Page : list of animals with add, edit and delete buttons
+app.get('/manageAnimals', function (req, res) {
+  Animal.find()
+    .then((data) => {
+      res.render('ManageAnimals', { animalData: data });
+    })
     .catch(err => console.log(err));
 });
 
