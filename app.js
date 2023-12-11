@@ -46,6 +46,7 @@ app.post('/api/signup', function (req, res) {
     email: req.body.email,
     // use bcrypt to encode passwords 10x before saving them to DB
     password: bcrypt.hashSync(req.body.password, 10),
+    admin: false,
   });
   // save User data to DB
   Data.save()
@@ -65,23 +66,33 @@ app.get('/login', function (req, res) {
 
 app.post('/api/login', function (req, res) {
   // see if user with email exists in DB
-  User.findOne({ username: req.body.email })
+  User.findOne({ email: req.body.email })
     .then(user => {
       // if no user, return error
       if (!user) {
         return res.status(404).send('utilisateur introuvable');
       }
       // show user in console if found
-      console.log(user);
-      // login if password is correct
-      if (bcrypt.compareSync(req.body.password, user.password)) {
-        return res.status(200).send('user logged in ! ')
+      console.log(user)
+      // login if password is correct, show AddAnimal if user is admin
+      if (!bcrypt.compareSync(req.body.password, user.password)) {      //else password + email is not correct, show error message
+        return res.status(404).send('Email ou mot de passe incorrect');
       }
-      //else password + email is not correct, show error message
-      return res.status(404).send('Email ou mot de passe incorrect');
+      else {
+        if (user.admin == true) {
+          // TO DO : create admin dashboard page
+          res.render('AddAnimal');
+        }
+        // TO DO : show user's saved animals list
+        res.render('Home');
+      }
     })
     //catch errors
     .catch(err => console.log(err));
+});
+
+app.get('/api/addAnimal', function (req, res) {
+  res.render('AddAnimal');
 });
 
 // create server on localhost @ port 5001 (5000 is taken by default on mac)
