@@ -155,6 +155,16 @@ app.put('/update-animal/:id', function (req, res) {
     .catch(err => console.log(err));
 });
 
+// DELETE existing animal from DB
+app.delete('/delete-animal/:id', function (req, res) {
+  Animal.deleteOne({ _id: req.params.id })
+    .then(() => {
+      console.log('animal deleted from DB 🗑️');
+      res.redirect('/ManageAnimals');
+    })
+    .catch(err => console.log(err));
+});
+
 // create server on localhost @ port 5001 (5000 is taken by default on mac)
 const server = app.listen(5001, function (res, req) {
   console.log("Server is running on port : 5001 / serveur est lancé 🏃");
