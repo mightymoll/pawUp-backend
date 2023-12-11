@@ -58,6 +58,31 @@ app.post('/api/signup', function (req, res) {
     .catch(err => console.log(err));
 });
 
+// Login Page : form for user connection
+app.get('/login', function (req, res) {
+  res.render('Connection');
+});
+
+app.post('/api/login', function (req, res) {
+  // see if user with email exists in DB
+  User.findOne({ username: req.body.email })
+    .then(user => {
+      // if no user, return error
+      if (!user) {
+        return res.status(404).send('utilisateur introuvable');
+      }
+      // show user in console if found
+      console.log(user);
+      // login if password is correct
+      if (bcrypt.compareSync(req.body.password, user.password)) {
+        return res.status(200).send('user logged in ! ')
+      }
+      //else password + email is not correct, show error message
+      return res.status(404).send('Email ou mot de passe incorrect');
+    })
+    //catch errors
+    .catch(err => console.log(err));
+});
 
 // create server on localhost @ port 5001 (5000 is taken by default on mac)
 const server = app.listen(5001, function (res, req) {
