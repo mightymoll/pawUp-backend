@@ -15,7 +15,13 @@ app.use(methodOverride('_method'));
 const bcrypt = require('bcrypt');
 // use dotenv to read .env file
 require('dotenv').config();
-
+// use express-session middleware for session management
+const session = require('express-session');
+app.use(session({
+  secret: 'secret-key',
+  resave: false,
+  saveUninitialized: false,
+}));
 
 /** CONNECTION to MongoDB using mongoose **/
 const url = process.env.DATABASE_URL;
@@ -31,6 +37,8 @@ const Asso = require('./models/Asso');
 
 /** ROUTES **/
 app.get('/', function (req, res) {
+  // use session middleware
+  const sessionData = req.session;
   // render cards of newest 4 animals from DB
   Animal.find().sort({ "datetime": -1 }).limit(4)
     .then((data) => {
@@ -86,12 +94,11 @@ app.post('/login', function (req, res) {
         return res.status(404).send('Email ou mot de passe incorrect');
       }
       else {
-        if (user.admin == true) {
-          // TO DO : create admin dashboard page
-          res.redirect('/manageAnimals');
-        }
-        // TO DO : show user's saved animals list
-        res.render('Home');
+        // setup for user access control with session middleware
+        req.session.isLoggedIn = true;
+        req.session.access = user.access;
+        console.log('user logged-in, access : ' + req.session.access);
+        res.redirect('/');
       }
     })
     //catch errors
@@ -229,6 +236,18 @@ app.delete('/delete-user/:id', function (req, res) {
       res.redirect('/ManageUsers');
     })
     .catch(err => console.log(err));
+});
+
+// logout user by ending session
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log('user logged-out');
+      res.redirect('/');
+    }
+  });
 });
 
 // create server on localhost @ port 5001 (5000 is taken by default on mac)
