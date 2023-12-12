@@ -53,7 +53,7 @@ app.post('/api/signup', function (req, res) {
     email: req.body.email,
     // use bcrypt to encode passwords 10x before saving them to DB
     password: bcrypt.hashSync(req.body.password, 10),
-    admin: false,
+    access: 'public',
   });
   // save User data to DB
   Data.save()
@@ -198,7 +198,38 @@ app.post('/api/newAsso', function (req, res) {
     .catch(err => console.log(err));
 });
 
+// Manage Users Page : list of all users with access change and delete buttons
+app.get('/manageUsers', function (req, res) {
+  User.find()
+    .then((data) => {
+      res.render('ManageUsers', { userData: data });
+    })
+    .catch(err => console.log(err));
+});
 
+// update User access on ManageUsers page
+app.put('/update-user/:id', function (req, res) {
+  const Data = {
+    access: req.body.access,
+  }
+  console.log(Data);
+
+  User.updateOne({ _id: req.params.id }, { $set: Data })
+    .then((result) => {
+      console.log("user's access updated in DB");
+      res.redirect('/ManageUsers');
+    })
+    .catch(err => console.log(err));
+});
+
+app.delete('/delete-user/:id', function (req, res) {
+  User.deleteOne({ _id: req.params.id })
+    .then(() => {
+      console.log('user deleted from DB 🗑️');
+      res.redirect('/ManageUsers');
+    })
+    .catch(err => console.log(err));
+});
 
 // create server on localhost @ port 5001 (5000 is taken by default on mac)
 const server = app.listen(5001, function (res, req) {

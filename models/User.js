@@ -5,7 +5,8 @@ const userSchema = mongoose.Schema({
   firstName: { type: 'string', required: true },
   email: { type: 'string', required: true, unique: true },
   password: { type: 'string', required: true },
-  admin: { type: 'boolean' },
+  // control access rights of the user
+  access: { type: 'string', required: true },
 });
 
 module.exports = mongoose.model('User', userSchema);
