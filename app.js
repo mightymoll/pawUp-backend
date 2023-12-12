@@ -27,6 +27,7 @@ mongoose.connect(url)
 /** MODELS **/
 const User = require('./models/User');
 const Animal = require('./models/Animal');
+const Asso = require('./models/Asso');
 
 /** ROUTES **/
 app.get('/', function (req, res) {
@@ -70,7 +71,7 @@ app.get('/login', function (req, res) {
   res.render('Connection');
 });
 
-app.post('/api/login', function (req, res) {
+app.post('/login', function (req, res) {
   // see if user with email exists in DB
   User.findOne({ email: req.body.email })
     .then(user => {
@@ -87,7 +88,7 @@ app.post('/api/login', function (req, res) {
       else {
         if (user.admin == true) {
           // TO DO : create admin dashboard page
-          res.render('ManageAnimals');
+          res.redirect('/manageAnimals');
         }
         // TO DO : show user's saved animals list
         res.render('Home');
@@ -169,6 +170,35 @@ app.delete('/delete-animal/:id', function (req, res) {
     })
     .catch(err => console.log(err));
 });
+
+// AddAsso Page : form to add a new association to DB
+app.get('/addAsso', function (req, res) {
+  res.render('AddAsso');
+});
+
+// POST request to add a new Association to DB
+app.post('/api/newAsso', function (req, res) {
+  const Data = new Asso({
+    name: req.body.name,
+    tel: req.body.tel,
+    email: req.body.email,
+    loc_street: req.body.loc_street,
+    loc_city: req.body.loc_city,
+    loc_postal: req.body.loc_postal,
+    soc_fb: req.body.soc_fb,
+    soc_insta: req.body.soc_insta,
+    soc_other: req.body.soc_other
+  })
+  // save/add animal data to DB
+  Data.save()
+    .then(() => {
+      console.log('association added to DB ✨');
+      res.redirect('/');
+    })
+    .catch(err => console.log(err));
+});
+
+
 
 // create server on localhost @ port 5001 (5000 is taken by default on mac)
 const server = app.listen(5001, function (res, req) {

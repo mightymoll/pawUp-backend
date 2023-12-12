@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscrire Association</title>
+</head>
+
+<body>
+  <h1>Inscrire un nouveau Association</h1>
+  <form action="/api/newAsso/" method="POST">
+
+    <label for="assoName">Nom d'association : </label>
+    <input type="text" name="name" id="assoName" required>
+    <br>
+    <label for="assoTel">Numéro téléphone : </label>
+    <input type="text" name="tel" id="assoTel" required>
+    <br>
+    <label for="email">Email contact : </label>
+    <input type="text" name="email" id="email" required>
+    <br>
+    <p>Addresse d'association :</p>
+    <label for="locationStreet">Addresse - Rue :</label>
+    <input type="text" name="loc_street" id="locationStreet">
+    <br>
+    <label for="locationCity">Addresse - Ville :</label>
+    <input type="text" name="loc_city" id="locationCity">
+    <br>
+    <label for="locationPostal">Addresse - Code Postale :</label>
+    <input type="text" name="loc_postal" id="locationPostal">
+    <br>
+    <p>Resaux Sociaux :</p>
+    <label for="facebook"><input type="checkbox" id="facebook" />Facebook</label>
+    <label for="fbLink">Lien Facebook : <input type="text" name="soc_fb" id="fbLink"></label>
+    <br>
+    <label for="instagram"><input type="checkbox" id="instagram" />Instagram</label>
+    <label for="inLink">Lien Instagram : <input type="text" name="soc_insta" id="inLink"></label>
+    <br>
+    <label for="other"><input type="checkbox" id="other" />Autre Reseau</label>
+    <!-- TO DO : recuperate 'other' social name from frontend before sending to backend -->
+    <label for="otherName">Nom de reseau: <input type="text" id="otherName"></label>
+    <label for="otherLink">Lien : <input type="text" id="otherLink"></label>
+    <br>
+
+    <input type="submit" value="soumettre">
+  </form>
+</body>
+
+</html>
