@@ -99,7 +99,8 @@ app.post('/login', function (req, res) {
         return res.status(408).send('Email ou mot de passe incorrect');
       }
       else {
-        res.json('user logged-in, access : ' + user.access);
+        // provide access to JSON Web Token to frontend
+        res.json(jwtDecode(req.cookies['access-token']));
       }
     })
     .catch(err => console.log(err));
@@ -110,12 +111,6 @@ app.get('/logout', function (req, res) {
   console.log('User is logged out 🔒')
   res.redirect(homePage);
 })
-
-
-// provide access to JSON Web Token to frontend
-app.get('/getJWT', (req, res) => {
-  res.json(jwtDecode(req.cookies['access-token']));
-});
 
 app.get('/api/newest', function (req, res) {
   // render cards of newest 4 animals from DB
