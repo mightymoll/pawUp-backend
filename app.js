@@ -88,24 +88,17 @@ app.post('/login', function (req, res) {
     .then(user => {
       console.log(user)
       // if no user, return error
-      if (!user) {
+      if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
         return res.status(405).send('utilisateur introuvable');
       }
       // show user in console if found
-
-      console.log(user)
-      const accessToken = createTokens(user)
-      res.cookie("access-token", accessToken, {
-        maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
-        httpOnly: true
-      })
-
-      if (!bcrypt.compareSync(req.body.password, user.password)) {      //else password + email is not correct, show error message
-        return res.status(408).send('Email ou mot de passe incorrect');
-      }
-
       else {
-
+        console.log(user)
+        const accessToken = createTokens(user)
+        res.cookie("access-token", accessToken, {
+          maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
+          httpOnly: true
+        })
         res.json(user.username)
       }
     })
