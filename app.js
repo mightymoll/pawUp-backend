@@ -6,6 +6,7 @@ var bodyParser = require('body-parser');
 const PORT = process.env.PORT || 5000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 require('dotenv').config();
 
 /** CONNECTION to MongoDB using mongoose **/
