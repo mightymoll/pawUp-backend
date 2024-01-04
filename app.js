@@ -92,8 +92,8 @@ app.post('/login', function (req, res) {
         return res.status(405).send('utilisateur introuvable');
       }
       // show user in console if found
-      console.log('user :' + user)
 
+      console.log(user)
       const accessToken = createTokens(user)
       res.cookie("access-token", accessToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
