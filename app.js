@@ -98,7 +98,7 @@ app.post('/login', function (req, res) {
         return res.status(408).send('Email ou mot de passe incorrect');
       }
       else {
-        res.json(user);
+        res.json(user.username);
       }
     })
     .catch(err => console.log(err));
