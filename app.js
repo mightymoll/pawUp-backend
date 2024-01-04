@@ -88,7 +88,6 @@ app.post('/login', function (req, res) {
   User.findOne({ username: req.body.username })
     .then(user => {
       console.log(user)
-      console.log(req.body)
       // if no user, return error
       if (!user) {
         return res.status(405).send('utilisateur introuvable');
@@ -99,8 +98,7 @@ app.post('/login', function (req, res) {
         return res.status(408).send('Email ou mot de passe incorrect');
       }
       else {
-        // provide access to JSON Web Token to frontend
-        res.json(jwtDecode(req.cookies['access-token']));
+        res.json(user);
       }
     })
     .catch(err => console.log(err));
@@ -111,6 +109,12 @@ app.get('/logout', function (req, res) {
   console.log('User is logged out 🔒')
   res.redirect(homePage);
 })
+
+
+// provide access to JSON Web Token to frontend
+app.get('/getJWT', (req, res) => {
+  res.json(jwtDecode(req.cookies['access-token']));
+});
 
 app.get('/api/newest', function (req, res) {
   // render cards of newest 4 animals from DB
