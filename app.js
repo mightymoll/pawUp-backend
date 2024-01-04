@@ -89,12 +89,12 @@ app.post('/login', function (req, res) {
     .then(user => {
       // if no user, return error
       if (!user) {
-        return res.status(404).send('utilisateur introuvable');
+        return res.status(405).send('utilisateur introuvable');
       }
       // show user in console if found
       console.log(user)
       if (!bcrypt.compareSync(req.body.password, user.password)) {      //else password + email is not correct, show error message
-        return res.status(404).send('Email ou mot de passe incorrect');
+        return res.status(408).send('Email ou mot de passe incorrect');
       }
       else {
         res.json('user logged-in, access : ' + user.access);
