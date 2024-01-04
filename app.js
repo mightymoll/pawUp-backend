@@ -3,6 +3,8 @@ const express = require('express');
 const app = express();
 var bodyParser = require('body-parser');
 
+const PORT = process.env.PORT || 3000;
+
 app.use(bodyParser.urlencoded({ extended: false }));
 require('dotenv').config();
 
@@ -11,9 +13,16 @@ var mongoose = require('mongoose');
 const url = process.env.DATABASE_URL;
 console.log(url);
 
-mongoose.connect(url)
-  .then(console.log("Mongo DB connected 🔗"))
-  .catch(err => console.log(err));
+// async connection to MongoDB
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.DATABASE_URL);
+    console.log(`Mongo DB connected 🔗: ${conn.connection.host}`);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+}
 
 /** CORS SETUP 
 /* needed for use with JSON Web Token, provide access to frontend
@@ -235,7 +244,9 @@ app.delete('/delete-user/:id', function (req, res) {
     .catch(err => console.log(err));
 });
 
-// create server on localhost @ port 5001 (5000 is taken by default on mac)
-const server = app.listen(5000, function (res, req) {
-  console.log("Server is running on port : 5000 / serveur est lancé 🏃");
-});
+
+connectDB().then(() => {
+  app.listen(PORT, function (res, req) {
+    console.log("Server is ready for requests / serveur est lancé 🏃");
+  })
+})
