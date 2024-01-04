@@ -43,7 +43,7 @@ const Animal = require('./models/Animal');
 const Asso = require('./models/Asso');
 
 /** ROUTES **/
-const homePage = '/'
+const homePage = process.env.FRONTEND_URL
 
 /* AUTHORISATION / AUTHENTICATION */
 app.post('/api/adduser', function (req, res) {
