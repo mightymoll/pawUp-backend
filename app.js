@@ -6,7 +6,6 @@ var bodyParser = require('body-parser');
 const PORT = process.env.PORT || 5000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 require('dotenv').config();
 
 /** CONNECTION to MongoDB using mongoose **/
@@ -96,16 +95,15 @@ app.post('/login', function (req, res) {
       console.log(user)
       if (!bcrypt.compareSync(req.body.password, user.password)) {      //else password + email is not correct, show error message
         return res.status(408).send('Email ou mot de passe incorrect');
+      }
 
+      else {
         const accessToken = createTokens(user)
         res.cookie("access-token", accessToken, {
           maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
           httpOnly: true
         })
-      }
-
-      else {
-        res.json(user.username);
+        res.json(user.username)
       }
     })
     .catch(err => console.log(err));
@@ -116,7 +114,6 @@ app.get('/logout', function (req, res) {
   console.log('User is logged out 🔒')
   res.redirect(homePage);
 })
-
 
 // provide access to JSON Web Token to frontend
 app.get('/getJWT', (req, res) => {
