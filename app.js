@@ -19,7 +19,7 @@ mongoose.connect(url)
 /* needed for use with JSON Web Token, provide access to frontend
 /* localhost:3000 placed on 'whitelist' */
 const cors = require('cors');
-app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
+app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
 
 //** PUT et DELETE methods for Express
 const methodOverride = require('method-override');
