@@ -45,6 +45,15 @@ const Asso = require('./models/Asso');
 /** ROUTES **/
 const homePage = process.env.FRONTEND_URL
 
+app.get('/', function (req, res) {
+  // get all user data for testing
+  User.find()
+    .then((data) => {
+      res.json(data);
+    })
+    .catch(err => console.log(err));
+})
+
 /* AUTHORISATION / AUTHENTICATION */
 app.post('/api/adduser', function (req, res) {
   const Data = new User({
