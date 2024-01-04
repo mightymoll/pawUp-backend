@@ -87,6 +87,8 @@ app.post('/login', function (req, res) {
   // see if user with email exists in DB
   User.findOne({ username: req.body.username })
     .then(user => {
+      console.log(user)
+      console.log(req.body)
       // if no user, return error
       if (!user) {
         return res.status(405).send('utilisateur introuvable');
