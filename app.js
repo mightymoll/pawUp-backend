@@ -54,7 +54,7 @@ const Asso = require('./models/Asso');
 /** ROUTES **/
 const homePage = process.env.FRONTEND_URL
 
-app.get('/', function (req, res) {
+app.get('/', validateToken, function (req, res) {
   // get all user data for testing
   User.find()
     .then((data) => {
@@ -86,23 +86,22 @@ app.post('/login', function (req, res) {
   // see if user with email exists in DB
   User.findOne({ username: req.body.username })
     .then(user => {
-      console.log(user)
-      // if no user, return error
-      if (!user || !bcrypt.compareSync(req.body.password, user.password)) {
-        return res.status(405).send('utilisateur introuvable');
+      if(!user){
+        return res.status(404).send("No user found");
       }
-      // show user in console if found
-      else {
-        console.log(user)
-        const accessToken = createTokens(user)
+      if(!bcrypt.compareSync(req.body.password, user.password)){
+        return res.status(404).send("Invalid password");
+      }
+    
+      const accessToken = createTokens(user)
         res.cookie("access-token", accessToken, {
           maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
           httpOnly: true
-        })
-        res.json(user.username)
-      }
+      })
+
+      res.redirect(process.env.FRONTEND_URL);
     })
-    .catch(err => console.log(err));
+    .catch(err =>{console.log(err);});
 });
 
 app.get('/logout', function (req, res) {
@@ -112,8 +111,8 @@ app.get('/logout', function (req, res) {
 })
 
 // provide access to JSON Web Token to frontend
-app.get('/getJWT', (req, res) => {
-  res.json(jwtDecode(req.cookies['access-token']));
+app.get('/getJwt', validateToken, (req, res) =>{
+  res.json(jwtDecode(req.cookies["access-token"]))
 });
 
 app.get('/api/newest', function (req, res) {
