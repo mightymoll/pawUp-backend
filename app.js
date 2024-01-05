@@ -54,7 +54,7 @@ const Asso = require('./models/Asso');
 /** ROUTES **/
 const homePage = process.env.FRONTEND_URL
 
-app.get('/', validateToken, function (req, res) {
+app.get('/', function (req, res) {
   // get all user data for testing
   User.find()
     .then((data) => {
@@ -74,13 +74,28 @@ app.post('/api/adduser', function (req, res) {
     access: 'public',
   })
 
+  console.log(Data)
   Data.save()
     .then(() => {
       console.log("User created in DB 👤");
-      res.redirect(homePage);
+      res.status(201).json({ result: 'success' })
     })
-    .catch(err => { console.log(err); });
+    .catch((err) => {
+      res.status(500).json({ err: err });
+    })
 })
+
+// User : data for a single user
+app.get('/user/:id', function (req, res) {
+  // get one contact matching id from url w/'params' and render in 'Edit' view
+  User.findOne({ _id: req.params.id })
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => {
+      res.status(404).json({ err: err });
+    });
+});
 
 app.post('/login', function (req, res) {
   // see if user with email exists in DB
@@ -125,7 +140,7 @@ app.get('/api/newest', function (req, res) {
 });
 
 // Manage Animals Page : list of animals with add, edit and delete buttons
-app.get('/manageAnimals', function (req, res) {
+app.get('/allAnimals', function (req, res) {
   Animal.find()
     .then((data) => {
       res.json(data);
@@ -153,7 +168,7 @@ app.post('/api/addAnimal', function (req, res) {
 });
 
 // Edit Animal : form to edit an existing animal
-app.get('/edit-animal/:id', function (req, res) {
+app.get('/animal/:id', function (req, res) {
   // get one contact matching id from url w/'params' and render in 'Edit' view
   Animal.findOne({ _id: req.params.id })
     .then((data) => {
@@ -251,3 +266,5 @@ connectDB().then(() => {
     console.log("Server is ready for requests / serveur est lancé 🏃");
   })
 })
+
+module.exports = app;
