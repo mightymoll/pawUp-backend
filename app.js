@@ -3,8 +3,6 @@ const express = require('express');
 const app = express();
 var bodyParser = require('body-parser');
 
-const PORT = process.env.PORT || 5000;
-
 app.use(bodyParser.urlencoded({ extended: false }));
 require('dotenv').config();
 
@@ -264,7 +262,7 @@ app.delete('/delete-user/:id', function (req, res) {
 
 
 connectDB().then(() => {
-  app.listen(PORT, function (res, req) {
+  app.listen(5000, function (res, req) {
     console.log("Server is ready for requests / serveur est lancé 🏃");
   })
 })
