@@ -113,8 +113,7 @@ app.post('/login', function (req, res) {
         return res.status(404).send("Invalid password");
       }
 
-      res.json('logged in')
-      res.redirect(process.env.FRONTEND_URL);
+      return res.json('logged in');
     })
     .catch(err =>{console.log(err);});
 });
