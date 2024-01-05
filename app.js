@@ -42,7 +42,7 @@ var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
 // import JWT
-const { createTokens, validateToken } = require('./JWT');
+const { createToken, validateToken } = require('./JWT');
 // import jwt-decode for decoding token & providing access to frontend
 const { jwtDecode } = require('jwt-decode')
 
@@ -108,8 +108,9 @@ app.post('/login', function (req, res) {
         return res.status(404).send("Invalid password");
       }
     
-      const accessToken = createTokens(user)
-        res.cookie("access-token", accessToken, {
+      const accessToken = createToken(user)
+
+      res.cookie("access-token", accessToken, {
           maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
           httpOnly: true
       })

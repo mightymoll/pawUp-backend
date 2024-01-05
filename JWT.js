@@ -2,7 +2,7 @@ const { sign, verify } = require('jsonwebtoken');
 // import dotenv from 'dotenv'
 require('dotenv').config();
 
-const createTokens = (user) => {
+const createToken = (user) => {
   const accessToken = sign(
     // can put whatever user data you want to store in the token
     {
@@ -38,4 +38,4 @@ const validateToken = (req, res, next) => {
   }
 };
 
-module.exports = { createTokens, validateToken };
+module.exports = { createToken, validateToken };
