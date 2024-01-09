@@ -24,7 +24,6 @@ const { jwtDecode } = require('jwt-decode');
 
 //bcrypt : hashage for passwords
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
 
 //** PUT et DELETE methods for Express
 const methodOverride = require('method-override');
@@ -78,7 +77,7 @@ app.post('/api/adduser', function (req, res) {
     firstName: req.body.firstName,
     username: req.body.username,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, saltRounds),
+    password: bcrypt.hashSync(req.body.password, 10),
     access: 'public',
   })
 
@@ -109,7 +108,7 @@ app.post('/login', function (req, res) {
   // see if user with email exists in DB
   User.findOne({ username: req.body.username })
     .then(user => {
-      const hash = bcrypt.hashSync(req.body.password, saltRounds);
+      const hash = bcrypt.hashSync(req.body.password, 10);
       console.log(hash, user.password);
       if (!bcrypt.compareSync(hash, user.password)) {
         return res.status(404).send("Invalid password");
