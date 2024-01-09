@@ -1,9 +1,31 @@
 /** IMPORTS **/
 const express = require('express');
 const app = express();
-var bodyParser = require('body-parser');
 
+var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: false }));
+
+
+/** CORS SETUP 
+/* needed for use with JSON Web Token, provide access to frontend
+/* localhost:3000 placed on 'whitelist' */
+const cors = require('cors');
+app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
+
+// for use with JSON Web Token, store token in cookies
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+// import JWT
+const { createToken, validateToken } = require('./JWT');
+
+//bcrypt : hashage for passwords
+const bcrypt = require('bcrypt');
+
+//** PUT et DELETE methods for Express
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
+
 require('dotenv').config();
 
 /** CONNECTION to MongoDB using mongoose **/
@@ -12,9 +34,14 @@ const url = process.env.DATABASE_URL;
 console.log(url);
 
 // async connection to MongoDB
+mongoose.set('strictQuery', false)
+
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.DATABASE_URL);
+    const conn = await mongoose.connect(process.env.DATABASE_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     console.log(`Mongo DB connected 🔗: ${conn.connection.host}`);
   } catch (error) {
     console.log(error);
@@ -22,27 +49,6 @@ const connectDB = async () => {
   }
 }
 
-/** CORS SETUP 
-/* needed for use with JSON Web Token, provide access to frontend
-/* localhost:3000 placed on 'whitelist' */
-const cors = require('cors');
-app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
-
-//** PUT et DELETE methods for Express
-const methodOverride = require('method-override');
-app.use(methodOverride('_method'));
-
-//bcrypt : hashage for passwords
-const bcrypt = require('bcrypt');
-
-// for use with JSON Web Token, store token in cookies
-var cookieParser = require('cookie-parser');
-app.use(cookieParser());
-
-// import JWT
-const { createToken, validateToken } = require('./JWT');
-// import jwt-decode for decoding token & providing access to frontend
-const { jwtDecode } = require('jwt-decode')
 
 /** MODELS **/
 const User = require('./models/User');
