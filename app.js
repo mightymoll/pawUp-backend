@@ -1,36 +1,9 @@
 /** IMPORTS **/
 const express = require('express');
 const app = express();
-app.use(express.json())
 
 var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json())
-
-
-/** CORS SETUP 
-/* needed for use with JSON Web Token, provide access to frontend
-/* localhost:3000 placed on 'whitelist' */
-const cors = require('cors');
-app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
-
-
-// for use with JSON Web Token, store token in cookies
-var cookieParser = require('cookie-parser');
-app.use(cookieParser());
-
-// import JWT
-const { createToken, validateToken } = require('./JWT');
-
-//Import jwt decode
-const { jwtDecode } = require('jwt-decode');
-
-//bcrypt : hashage for passwords
-const bcrypt = require('bcrypt');
-
-//** PUT et DELETE methods for Express
-const methodOverride = require('method-override');
-app.use(methodOverride('_method'));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 require('dotenv').config();
 
@@ -54,6 +27,29 @@ const connectDB = async () => {
     process.exit(1);
   }
 }
+
+/** CORS SETUP 
+/* needed for use with JSON Web Token, provide access to frontend
+/* localhost:3000 placed on 'whitelist' */
+const cors = require('cors');
+app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
+
+//** PUT et DELETE methods for Express
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
+
+//bcrypt : hashage for passwords
+const bcrypt = require('bcrypt');
+
+// for use with JSON Web Token, store token in cookies
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+// import JWT
+const { createToken, validateToken } = require('./JWT');
+
+//Import jwt decode
+const { jwtDecode } = require('jwt-decode');
 
 
 /** MODELS **/
