@@ -14,10 +14,7 @@ app.use(express.json())
 const cors = require('cors');
 app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  next();
-});
+
 // for use with JSON Web Token, store token in cookies
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
