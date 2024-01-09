@@ -1,6 +1,7 @@
 /** IMPORTS **/
 const express = require('express');
 const app = express();
+app.use(express.json())
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -122,7 +123,7 @@ app.post('/login', function (req, res) {
           httpOnly: true
       })
 
-      return res.status(200).send('logged in');
+      res.redirect(process.env.FRONTEND_URL);
     })
     .catch(err =>{console.log(err);});
 });
