@@ -105,17 +105,15 @@ app.get('/user/:id', function (req, res) {
 });
 
 app.post('/login', function (req, res) {
-  console.log(req.body.username, req.body.password)
   // see if user with email exists in DB
   User.findOne({ username: req.body.username })
     .then(user => {
-      const hash = bcrypt.hashSync(req.body.password, 10);
-      if (!bcrypt.compareSync(hash, user.password)) {
-        return res.status(404).send("Invalid password");
-      }
-
       if(!user){
         return res.status(404).send("No user found");
+      }
+
+      if (!bcrypt.compareSync(req.body.password, user.password)) {
+        return res.status(403).send("Invalid password or username");
       }
 
       const accessToken = createToken(user)
