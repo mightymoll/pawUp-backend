@@ -105,8 +105,8 @@ app.post('/login', function (req, res) {
   // see if user with email exists in DB
   User.findOne({ username: req.body.username })
     .then(user => {
-      console.log(bcrypt.compareSync(req.body.password, user.password));
-      if (!bcrypt.compareSync(req.body.password, user.password)) {
+      console.log(bcrypt.compare(req.body.password, user.password));
+      if (!bcrypt.compare(req.body.password, user.password)) {
         return res.status(404).send("Invalid password");
       }
 
