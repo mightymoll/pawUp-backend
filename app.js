@@ -105,15 +105,15 @@ app.post('/login', function (req, res) {
   // see if user with email exists in DB
   User.findOne({ username: req.body.username })
     .then(user => {
+      console.log(bcrypt.compareSync(req.body.password, user.password));
+      if (!bcrypt.compareSync(req.body.password, user.password)) {
+        return res.status(404).send("Invalid password");
+      }
+
       if(!user){
         return res.status(404).send("No user found");
       }
 
-      else if (!bcrypt.compareSync(req.body.password, user.password)) {
-        return res.status(404).send("Invalid password");
-      }
-
-      else {
       const accessToken = createToken(user)
       res.cookie("access-token", accessToken, {
           maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
@@ -121,7 +121,6 @@ app.post('/login', function (req, res) {
       })
 
       return res.status(200).send('logged in');
-      }
     })
     .catch(err =>{console.log(err);});
 });
