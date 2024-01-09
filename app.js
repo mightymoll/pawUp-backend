@@ -81,7 +81,6 @@ app.post('/api/adduser', function (req, res) {
     access: 'public',
   })
 
-  console.log(Data)
   Data.save()
     .then(() => {
       console.log("User created in DB 👤");
@@ -105,11 +104,11 @@ app.get('/user/:id', function (req, res) {
 });
 
 app.post('/login', function (req, res) {
+  console.log(req.body.username, req.body.password)
   // see if user with email exists in DB
   User.findOne({ username: req.body.username })
     .then(user => {
       const hash = bcrypt.hashSync(req.body.password, 10);
-      console.log(hash, user.password);
       if (!bcrypt.compareSync(hash, user.password)) {
         return res.status(404).send("Invalid password");
       }
