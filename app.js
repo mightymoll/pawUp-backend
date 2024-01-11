@@ -117,8 +117,9 @@ app.post('/login', function (req, res) {
 
       const accessToken = createToken(user)
       res.cookie("access-token", accessToken, {
-          maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
-          httpOnly: true
+        maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
+        httpOnly: false,
+        secure: true,
       })
 
       res.redirect(process.env.FRONTEND_URL);
