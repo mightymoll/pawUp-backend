@@ -1,46 +1,51 @@
 /** IMPORTS **/
-const express = require('express');
-const app = express();
-app.use(express.json());
-
-var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({ extended: false }));
-
+const express = require("express");
+const bodyParser = require("body-parser");
+//bcrypt : hashage for passwords
+const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken')
+// import variables from .env file
 require('dotenv').config();
 
+const app = express();
+const port = process.env.SERVER_PORT;
+
+// Add Access Control Allow Origin headers
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  next();
+});
+
+
+// body parser configuration
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 /** CONNECTION to MongoDB using mongoose **/
-var mongoose = require('mongoose');
-const url = process.env.DATABASE_URL;
-console.log(url);
+const mongoose = require('mongoose');
+mongoose.set('strictQuery', false);
 
 // async connection to MongoDB
-mongoose.set('strictQuery', false)
-
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.DATABASE_URL, {
+    mongoose.connect(process.env.DATABASE_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log(`Mongo DB connected 🔗: ${conn.connection.host}`);
+    console.log('Mongo DB connected 🔗');
   } catch (error) {
     console.log(error);
     process.exit(1);
   }
 }
 
-/** CORS SETUP 
-/* needed for use with JSON Web Token, provide access to frontend
-/* localhost:3000 placed on 'whitelist' */
-const cors = require('cors');
-app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL }));
-
 //** PUT et DELETE methods for Express
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
 
-//bcrypt : hashage for passwords
-const bcrypt = require('bcrypt');
 
 // for use with JSON Web Token, store token in cookies
 var cookieParser = require('cookie-parser');
@@ -61,7 +66,7 @@ const Asso = require('./models/Asso');
 /** ROUTES **/
 const homePage = process.env.FRONTEND_URL
 
-app.get('/', function (req, res) {
+app.get('/', validateToken, function (req, res) {
   // get all user data for testing
   User.find()
     .then((data) => {
@@ -71,25 +76,40 @@ app.get('/', function (req, res) {
 })
 
 /* AUTHORISATION / AUTHENTICATION */
-app.post('/api/adduser', function (req, res) {
-  const Data = new User({
-    lastName: req.body.lastName,
-    firstName: req.body.firstName,
-    username: req.body.username,
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 10),
-    access: 'public',
-  })
+app.post('/signup', function (req, res) {
+  // hash password
+  bcrypt.hash(req.body.password, 10)
+    .then((hashedPassword) => {
+      // create a new user instance
+      const user = new User({
+        lastName: req.body.lastName,
+        firstName: req.body.firstName,
+        email: req.body.email,
+        password: hashedPassword,
+        access: 'public',
+      });
 
-  Data.save()
-    .then(() => {
-      console.log("User created in DB 👤");
-      res.status(201).json({ result: 'success' })
+      // save new user in DB
+      user.save()
+        .then((result) => {
+          console.log("User created in DB 👤");
+          res.status(201).send({ message: 'new user created successfully', result });
     })
     .catch((err) => {
-      res.status(500).json({ err: err });
+      res.status(500).send({
+        message: "Error creating user",
+        err,
+      });
+    });
     })
-})
+    // catch error if the password hash isn't successful
+    .catch((e) => {
+      res.status(500).send({
+        message: "Password was not hashed successfully",
+        e,
+      });
+    });
+});
 
 // User : data for a single user
 app.get('/user/:id', function (req, res) {
@@ -105,27 +125,32 @@ app.get('/user/:id', function (req, res) {
 
 app.post('/login', function (req, res) {
   // see if user with email exists in DB
-  User.findOne({ username: req.body.username })
-    .then(user => {
-      if(!user){
-        return res.status(404).send("No user found");
-      }
+  User.findOne({ email: req.body.email })
+    .then((user) => {
+      // if no user, return not found
+      if (!user) return res.status(400).send("User not found");
 
+      //Check if password entered is correct
       if (!bcrypt.compareSync(req.body.password, user.password)) {
-        return res.status(403).send("Invalid password or username");
+        return res.status(400).send("User's email / password does not match");
       }
 
-      const accessToken = createToken(user)
-      res.cookie("access-token", accessToken, {
-        maxAge: 1000 * 60 * 60 * 24 * 30, //30 jours en ms
-        httpOnly: false,
-        secure: true,
-      })
+      // USER IS VERIFIED : 
+      //create the jwt token 
+      const token = createToken(user);
 
-      res.redirect(process.env.FRONTEND_URL);
+      // send the token as browser cookie
+      res.cookie("access-token", token, {
+        httpOnly: true,
+        secure: true,
+        // sameSite : none needed to store cookie in dev over http
+        sameSite: "none",
+      })
+      // status 200 = success, and message to show user is logged in 
+      res.status(200);
+      res.send('user logged in');
     })
-    .catch(err =>{console.log(err);});
-});
+})
 
 app.get('/logout', function (req, res) {
   res.clearCookie('access-token');
@@ -268,10 +293,9 @@ app.delete('/delete-user/:id', function (req, res) {
     .catch(err => console.log(err));
 });
 
-
 connectDB().then(() => {
-  app.listen(5000, function (res, req) {
-    console.log("Server is ready for requests / serveur est lancé 🏃");
+  app.listen(port, function (res, req) {
+    console.log("Server is running @ port : " + port + " / serveur est lancé 🏃");
   })
 })
 
