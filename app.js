@@ -77,39 +77,26 @@ app.get('/', validateToken, function (req, res) {
 
 /* AUTHORISATION / AUTHENTICATION */
 app.post('/signup', function (req, res) {
-  // hash password
-  bcrypt.hash(req.body.password, 10)
-    .then((hashedPassword) => {
-      // create a new user instance
-      const user = new User({
-        lastName: req.body.lastName,
-        firstName: req.body.firstName,
-        email: req.body.email,
-        password: hashedPassword,
-        access: 'public',
-      });
+  // create new instance of user
+  const user = new User({
+    lastName: req.body.lastName,
+    firstName: req.body.firstName,
+    email: req.body.email,
+    // hash password with bcrypt before saving
+    password: bcrypt.hashSync(req.body.password, 10),
+    access: 'public',
+  })
 
-      // save new user in DB
-      user.save()
-        .then((result) => {
-          console.log("User created in DB 👤");
-          res.status(201).send({ message: 'new user created successfully', result });
+
+  console.log(user);
+  // save new user in DB
+  user.save()
+    .then(() => {
+      console.log("User created in DB 👤");
+      res.redirect(homePage);
     })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error creating user",
-        err,
-      });
-    });
-    })
-    // catch error if the password hash isn't successful
-    .catch((e) => {
-      res.status(500).send({
-        message: "Password was not hashed successfully",
-        e,
-      });
-    });
-});
+    .catch(err => console.log(err));
+})
 
 // User : data for a single user
 app.get('/user/:id', function (req, res) {
@@ -141,7 +128,7 @@ app.post('/login', function (req, res) {
 
       // send the token as browser cookie
       res.cookie("access-token", token, {
-        httpOnly: true,
+        httpOnly: false,
         secure: true,
         // sameSite : none needed to store cookie in dev over http
         sameSite: "none",

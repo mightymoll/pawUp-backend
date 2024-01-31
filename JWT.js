@@ -8,13 +8,13 @@ const createToken = (user) => {
     {
       // ._id because we're using mongoDB and it generates id as such
       id: user._id,
-      username: user.username,
+      email: user.email,
       // keep track of access on frontend
       access: user.access
     },
     //change to a real secret key w/dotenv (process.env.SECRET_KEY)
     process.env.SECRET_KEY
-  );
+  )
   return accessToken;
 }
 

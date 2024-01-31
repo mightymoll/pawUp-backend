@@ -16,7 +16,6 @@ describe('Express API', () => {
             expect.objectContaining({
               lastName: expect.any(String),
               firstName: expect.any(String),
-              username: expect.any(String),
               email: expect.any(String),
               password: expect.any(String),
               access: expect.any(String),
@@ -38,7 +37,6 @@ describe('Express API', () => {
         expect.objectContaining({
           lastName: expect.any(String),
           firstName: expect.any(String),
-          username: expect.any(String),
           email: expect.any(String),
           password: expect.any(String),
           access: expect.any(String),
@@ -56,7 +54,6 @@ describe('Express API', () => {
     return request(app).post('/api/adduser').send({
       lastName: "Smith",
       firstName: "John",
-      username: "jsmith",
       email: "jsmith@gmail.com",
       password: "jsmith123",
       access: "public",
