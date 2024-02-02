@@ -21,12 +21,12 @@ const createToken = (user) => {
 // have to be in that order : req, res, next
 const validateToken = (req, res, next) => {
   const accessToken = req.cookies["access-token"];
-  console.log(accessToken);
   if (!accessToken)
     return res.status(400).json({ error: "User not Authenticated!" });
 
   try {
-    const validToken = verify(accessToken, "SECRET");
+    // add real secret key (stored in .env file)
+    const validToken = verify(accessToken, process.env.SECRET_KEY);
     if (validToken) {
       req.authenticated = true;
       return next();
