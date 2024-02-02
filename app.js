@@ -169,20 +169,21 @@ app.get('/allAnimals', function (req, res) {
 });
 
 // POST request to add a new animal to DB
-app.post('/api/addAnimal', function (req, res) {
+app.post('/addAnimal', function (req, res) {
   const Data = new Animal({
     numICAD: req.body.numICAD,
     name: req.body.name,
-    desc: req.body.desc,
     sex: req.body.sex,
     race: req.body.race,
     birthDay: req.body.birthDay,
+    desc_short: req.body.desc_short,
+    desc_long: req.body.desc_long,
   })
   // save/add animal data to DB
   Data.save()
     .then(() => {
       console.log('animal added to DB 🐾');
-      res.redirect(homePage);
+      res.redirect(homePage + '/admin');
     })
     .catch(err => console.log(err));
 });
