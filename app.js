@@ -77,23 +77,25 @@ app.get('/', validateToken, function (req, res) {
 
 /* AUTHORISATION / AUTHENTICATION */
 app.post('/signup', function (req, res) {
-    // create new instance of user
+  // hash password with bcrypt
+  const hashedPwd = bcrypt.hashSync(req.body.password, 10);
+
+  // create new instance of user
   const user = new User({
     lastName: req.body.lastName,
     firstName: req.body.firstName,
     email: req.body.email,
     // hash password with bcrypt before saving
-    password: bcrypt.hashSync(req.body.password, 10),
+    password: hashedPwd,
     access: 'public',
   })
 
-
-  console.log(user);
   // save new user in DB
   user.save()
     .then(() => {
       console.log("User created in DB 👤");
-      res.redirect(homePage);
+      res.status(200);
+      res.send('user logged in');
     })
     .catch(err => console.log(err));
 })
