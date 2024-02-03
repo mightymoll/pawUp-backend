@@ -77,7 +77,7 @@ app.get('/', validateToken, function (req, res) {
 
 /* AUTHORISATION / AUTHENTICATION */
 app.post('/signup', function (req, res) {
-  // create new instance of user
+    // create new instance of user
   const user = new User({
     lastName: req.body.lastName,
     firstName: req.body.firstName,
@@ -199,14 +199,16 @@ app.get('/animal/:id', function (req, res) {
 });
 
 // PUT request to update existing animal in DB
-app.put('/api/update-animal/:id', function (req, res) {
+app.put('/update-animal/:id', function (req, res) {
   const Data = {
+    _id: req.params.id,
     numICAD: req.body.numICAD,
     name: req.body.name,
-    desc: req.body.desc,
     sex: req.body.sex,
     race: req.body.race,
     birthDay: req.body.birthDay,
+    desc_short: req.body.desc_short,
+    desc_long: req.body.desc_long,
   }
   console.log(Data);
 
@@ -218,11 +220,10 @@ app.put('/api/update-animal/:id', function (req, res) {
 });
 
 // DELETE existing animal from DB
-app.delete('/api/delete-animal/:id', function (req, res) {
+app.delete('/delete-animal/:id', function (req, res) {
   Animal.deleteOne({ _id: req.params.id })
     .then(() => {
       console.log('animal deleted from DB 🗑️');
-      res.redirect(homePage);
     })
     .catch(err => console.log(err));
 });
