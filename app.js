@@ -98,17 +98,6 @@ app.get('/captcha', (req, res) => {
   res.status(200).send(captcha.data)
 })
 
-// verify captcha @/verifycaptcha route
-app.post('/verifycaptcha', (req, res) => {
-  const userInput = req.body.captchaText;
-  if (userInput === req.session.captcha.text) {
-    res.status(200).send('Captcha verified!')
-  }
-  else {
-    res.status(400).send('Invalid captcha')
-  }
-})
-
 // block pollution of http parameters with hpp *remove if causing problems
 const hpp = require('hpp');
 app.use(hpp());
@@ -131,7 +120,6 @@ app.use('/apiDocumentation', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
 const User = require('./models/User');
 const Animal = require('./models/Animal');
 const Asso = require('./models/Asso');
-const { restart } = require("nodemon");
 
 /** ROUTES **/
 const homePage = process.env.FRONTEND_URL
@@ -152,13 +140,21 @@ app.post('/signup', function (req, res) {
     access: 'public',
   })
 
-  // save new user in DB
-  user.save()
-    .then(() => {
-      console.log("User created in DB 👤");
-      res.status(200);
-    })
-    .catch(err => console.log(err));
+  // verify captcha -> compare value in req.body to captcha value stored in req.session
+  if (req.body.captcha !== req.session.captcha) {
+    res.status(400).send('Invalid captcha')
+  }
+
+  else {
+    console.log('captcha verified')
+    // save new user in DB
+    user.save()
+      .then(() => {
+        console.log("User created in DB 👤");
+        res.status(200).send('User created');
+      })
+      .catch(err => console.log(err));
+  }
 })
 
 // User : data for a single user
