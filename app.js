@@ -19,7 +19,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // body parser configuration
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -57,25 +56,88 @@ const { createToken, validateToken } = require('./JWT');
 //Import jwt decode
 const { jwtDecode } = require('jwt-decode');
 
+/** Security **/
+
+// toobusy : send message if server cannot handle # of requests being sent
+const toobusy = require('toobusy-js');
+
+app.use(function (req, res, next) {
+  if (toobusy()) {
+    res.status(503).send('Server is too busy')
+  }
+  else {
+    next();
+  }
+})
+
+// captcha: limit brute-force attacks by implementing capcha
+const session = require('express-session')
+const svgCaptcha = require('svg-captcha')
+
+// initialize a session
+app.use(session({
+  secret: process.env.CAPTCHA_KEY,
+  resave: false,
+  saveUninitialized: true,
+}))
+
+// generate captcha @/captcha route
+app.get('/captcha', (req, res) => {
+  // define display options for captcha
+  const options = {
+    size: 6,
+    noise: 1,
+  }
+
+  // generate a captcha image with svg-captcha
+  const captcha = svgCaptcha.create(options);
+  // store captcha value in session
+  req.session.captcha = captcha.text;
+  // send the captcha in response
+  res.type('svg')
+  res.status(200).send(captcha.data)
+})
+
+// verify captcha @/verifycaptcha route
+app.post('/verifycaptcha', (req, res) => {
+  const userInput = req.body.captchaText;
+  if (userInput === req.session.captcha.text) {
+    res.status(200).send('Captcha verified!')
+  }
+  else {
+    res.status(400).send('Invalid captcha')
+  }
+})
+
+// block pollution of http parameters with hpp *remove if causing problems
+const hpp = require('hpp');
+app.use(hpp());
+
+// modifying headers w/helmet *remove if causing problems
+const helmet = require('helmet');
+app.use(helmet());
+
+// control/limit caching of data from DB with nocache
+const nocache = require('nocache')
+app.use(nocache())
+
+// Documentation w/Swagger
+const swaggerUI = require('swagger-ui-express');
+const swaggerDocs = require('./swagger-output.json');
+// create location/route to display docs
+app.use('/apiDocumentation', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
 
 /** MODELS **/
 const User = require('./models/User');
 const Animal = require('./models/Animal');
 const Asso = require('./models/Asso');
+const { restart } = require("nodemon");
 
 /** ROUTES **/
 const homePage = process.env.FRONTEND_URL
 
-app.get('/', validateToken, function (req, res) {
-  // get all user data for testing
-  User.find()
-    .then((data) => {
-      res.json(data);
-    })
-    .catch(err => console.log(err));
-})
+/* UER AUTHORISATION / AUTHENTICATION */
 
-/* AUTHORISATION / AUTHENTICATION */
 app.post('/signup', function (req, res) {
   // hash password with bcrypt
   const hashedPwd = bcrypt.hashSync(req.body.password, 10);
@@ -95,7 +157,6 @@ app.post('/signup', function (req, res) {
     .then(() => {
       console.log("User created in DB 👤");
       res.status(200);
-      res.send('user logged in');
     })
     .catch(err => console.log(err));
 })
@@ -143,8 +204,8 @@ app.post('/login', function (req, res) {
 
 app.get('/logout', function (req, res) {
   res.clearCookie('access-token');
-  console.log('User is logged out 🔒')
-  res.redirect(homePage);
+  res.status(200);
+  res.send('User is logged out');
 })
 
 // provide access to JSON Web Token to frontend
@@ -185,7 +246,9 @@ app.post('/addAnimal', function (req, res) {
   Data.save()
     .then(() => {
       console.log('animal added to DB 🐾');
-      res.redirect(homePage + '/admin');
+      // status 200 = success, and message to show animal was updated
+      res.status(200);
+      res.send('animal modified');
     })
     .catch(err => console.log(err));
 });
@@ -202,6 +265,8 @@ app.get('/animal/:id', function (req, res) {
 
 // PUT request to update existing animal in DB
 app.put('/update-animal/:id', function (req, res) {
+  console.log(req.params.id);
+
   const Data = {
     _id: req.params.id,
     numICAD: req.body.numICAD,
@@ -217,6 +282,9 @@ app.put('/update-animal/:id', function (req, res) {
   Animal.updateOne({ _id: req.params.id }, { $set: Data })
     .then((result) => {
       console.log('animal updated in DB');
+      // status 200 = success, and message to show animal was updated
+      res.status(200);
+      res.send('animal modified');
     })
     .catch(err => console.log(err));
 });
@@ -252,9 +320,18 @@ app.post('/api/addAsso', function (req, res) {
     .catch(err => console.log(err));
 });
 
-// Manage Users Page : list of all users with access change and delete buttons
-app.get('/manageUsers', function (req, res) {
+// get all users 
+app.get('/allUsers', function (req, res) {
   User.find()
+    .then((data) => {
+      res.json(data);
+    })
+    .catch(err => console.log(err));
+});
+
+// get one user
+app.get('/user/:id', function (req, res) {
+  User.findOne({ _id: req.body.id })
     .then((data) => {
       res.json(data);
     })
@@ -263,15 +340,17 @@ app.get('/manageUsers', function (req, res) {
 
 // update User access on ManageUsers page
 app.put('/update-user/:id', function (req, res) {
+  console.log(req.body)
   const Data = {
+    ...req.body,
     access: req.body.access,
   }
   console.log(Data);
 
   User.updateOne({ _id: req.params.id }, { $set: Data })
     .then((result) => {
-      console.log("user's access updated in DB");
-      res.redirect('/ManageUsers');
+      res.status(200);
+      res.send('use access modified');
     })
     .catch(err => console.log(err));
 });
