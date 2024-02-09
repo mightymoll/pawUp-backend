@@ -56,6 +56,23 @@ const { createToken, validateToken } = require('./JWT');
 //Import jwt decode
 const { jwtDecode } = require('jwt-decode');
 
+// Upload images
+const multer = require('multer');
+app.use(express.static('uploads'));
+
+// Configure multer storage and file name
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const filename = file.originalname.replace(/\s/g, '')
+    cb(null, filename);
+  }
+});
+// Create multer upload instance
+const upload = multer({ storage })
+
 /** Security **/
 
 // toobusy : send message if server cannot handle # of requests being sent
@@ -204,6 +221,25 @@ app.get('/logout', function (req, res) {
   res.send('User is logged out');
 })
 
+// file uploading
+app.post('/uploadimage', upload.single('image'), function (req, res) {
+  if (!req.file) {
+    res.status(400).send("No file uploaded!");
+  }
+  else {
+    res.send("File uploaded!");
+  }
+})
+
+app.post('/uploadmultiple', upload.array('images', 10), function (req, res) {
+  if (!req.files || req.files.length === 0) {
+    res.status(400).send("No files uploaded");
+  }
+  else {
+    res.status(200).send("Files uploaded");
+  }
+});
+
 // provide access to JSON Web Token to frontend
 app.get('/getJwt', validateToken, (req, res) =>{
   res.json(jwtDecode(req.cookies["access-token"]))
@@ -229,14 +265,16 @@ app.get('/allAnimals', function (req, res) {
 
 // POST request to add a new animal to DB
 app.post('/addAnimal', function (req, res) {
+
   const Data = new Animal({
-    numICAD: req.body.numICAD,
-    name: req.body.name,
-    sex: req.body.sex,
-    race: req.body.race,
-    birthDay: req.body.birthDay,
-    desc_short: req.body.desc_short,
-    desc_long: req.body.desc_long,
+    numICAD: req.body.animal.numICAD,
+    name: req.body.animal.name,
+    sex: req.body.animal.sex,
+    race: req.body.animal.race,
+    birthDay: req.body.animal.birthDay,
+    desc_short: req.body.animal.desc_short,
+    desc_long: req.body.animal.desc_long,
+    images: req.body.images
   })
   // save/add animal data to DB
   Data.save()
