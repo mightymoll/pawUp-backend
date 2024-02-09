@@ -240,6 +240,19 @@ app.post('/uploadmultiple', upload.array('images', 10), function (req, res) {
   }
 });
 
+// delete an image
+app.delete('/delete-image/:name', function (req, res) {
+  const fs = require("fs");
+  const fileName = req.params.name;
+
+  fs.unlink(`./uploads/` + fileName, (err) => {
+    if (err) {
+      res.status(500).send({ message: "Could not delete the file. " + err, });
+    }
+    res.status(200).send({ message: "File is deleted.", });
+  });
+});
+
 // provide access to JSON Web Token to frontend
 app.get('/getJwt', validateToken, (req, res) =>{
   res.json(jwtDecode(req.cookies["access-token"]))
@@ -303,13 +316,14 @@ app.put('/update-animal/:id', function (req, res) {
 
   const Data = {
     _id: req.params.id,
-    numICAD: req.body.numICAD,
-    name: req.body.name,
-    sex: req.body.sex,
-    race: req.body.race,
-    birthDay: req.body.birthDay,
-    desc_short: req.body.desc_short,
-    desc_long: req.body.desc_long,
+    numICAD: req.body.animal.numICAD,
+    name: req.body.animal.name,
+    sex: req.body.animal.sex,
+    race: req.body.animal.race,
+    birthDay: req.body.animal.birthDay,
+    desc_short: req.body.animal.desc_short,
+    desc_long: req.body.animal.desc_long,
+    images: req.body.images
   }
   console.log(Data);
 
