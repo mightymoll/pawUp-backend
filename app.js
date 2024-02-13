@@ -285,9 +285,11 @@ app.post('/addAnimal', function (req, res) {
     sex: req.body.animal.sex,
     race: req.body.animal.race,
     birthDay: req.body.animal.birthDay,
+    ageRange: req.body.animal.ageRange,
     desc_short: req.body.animal.desc_short,
     desc_long: req.body.animal.desc_long,
-    images: req.body.images
+    images: req.body.images,
+    status: req.body.animal.status
   })
   // save/add animal data to DB
   Data.save()
@@ -315,15 +317,16 @@ app.put('/update-animal/:id', function (req, res) {
   console.log(req.params.id);
 
   const Data = {
-    _id: req.params.id,
     numICAD: req.body.animal.numICAD,
     name: req.body.animal.name,
     sex: req.body.animal.sex,
     race: req.body.animal.race,
     birthDay: req.body.animal.birthDay,
+    ageRange: req.body.animal.ageRange,
     desc_short: req.body.animal.desc_short,
     desc_long: req.body.animal.desc_long,
-    images: req.body.images
+    images: req.body.images,
+    status: req.body.animal.status
   }
   console.log(Data);
 
