@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const assoSchema = mongoose.Schema({
+  siret: { type: 'string', required: true, unique: true },
   name: { type: 'string', required: true },
   tel: { type: 'string', required: true },
   email: { type: 'string', required: true, unique: true },

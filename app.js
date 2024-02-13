@@ -347,8 +347,9 @@ app.delete('/delete-animal/:id', function (req, res) {
 });
 
 // POST request to add a new Association to DB
-app.post('/api/addAsso', function (req, res) {
+app.post('/addAsso', function (req, res) {
   const Data = new Asso({
+    siret: req.body.siret,
     name: req.body.name,
     tel: req.body.tel,
     email: req.body.email,
@@ -362,8 +363,19 @@ app.post('/api/addAsso', function (req, res) {
   // save/add animal data to DB
   Data.save()
     .then(() => {
-      res.json('association added to DB ✨');
-      res.redirect(homePage);
+      console.log('association added to DB ✨');
+      res.status(200);
+      res.send('association registered');
+    })
+    .catch(err => console.log(err));
+});
+
+//get association data
+app.get('/asso/:id', function (req, res) {
+  // get one contact matching id from url w/'params' and render in 'Edit' view
+  Asso.findOne({ _id: req.params.id })
+    .then((data) => {
+      res.json(data);
     })
     .catch(err => console.log(err));
 });
@@ -410,6 +422,52 @@ app.delete('/delete-user/:id', function (req, res) {
     })
     .catch(err => console.log(err));
 });
+
+
+// send email from contact form
+const nodemailer = require('nodemailer')
+
+const transporter = nodemailer.createTransport({
+  //authentication for sending email.
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // use TLS
+  // use env variables as credentials for the email server.
+  auth: {
+    user: process.env.SMTP_TO_EMAIL,
+    pass: process.env.SMTP_TO_PASSWORD,
+  },
+});
+
+// route to send an email
+app.post("/sendMail", (req, res) => {
+  mail = {
+    sender: req.body.email,
+    to: process.env.SMTP_TO_EMAIL,
+    subject: req.body.subject,
+    text: `
+      from: ${req.body.name}
+      email: ${req.body.email}
+      message: ${req.body.message}`,
+  }
+
+  async function sendMail() {
+    const info = await transporter.sendMail(mail)
+    return info;
+  };
+
+  sendMail().then((info => {
+    console.log(info)
+    // message to use @frontend on success
+    res.send('Votre message a été envoyé! Merci')
+  })
+  )
+    .catch(err => {
+      console.log(err)
+      // message to use @frontend on failure/error
+      res.send('Un erreur est survenue, veuillez réessayer plus tard')
+    });
+})
 
 connectDB().then(() => {
   app.listen(port, function (res, req) {
