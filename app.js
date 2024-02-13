@@ -258,7 +258,7 @@ app.get('/getJwt', validateToken, (req, res) =>{
   res.json(jwtDecode(req.cookies["access-token"]))
 });
 
-app.get('/api/newest', function (req, res) {
+app.get('/animals/newest', function (req, res) {
   // render cards of newest 4 animals from DB
   Animal.find().sort({ "datetime": -1 }).limit(4)
     .then((data) => {
@@ -268,7 +268,7 @@ app.get('/api/newest', function (req, res) {
 });
 
 // Manage Animals Page : list of animals with add, edit and delete buttons
-app.get('/allAnimals', function (req, res) {
+app.get('/animals/all', function (req, res) {
   Animal.find()
     .then((data) => {
       res.json(data);

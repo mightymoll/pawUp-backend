@@ -8,7 +8,7 @@ const animalSchema = mongoose.Schema({
   birthDay: { type: 'date' },
   desc_short: { type: 'string' },
   desc_long: { type: 'string' },
-  images: { type: 'array' }
+  images: { type: 'array' },
 });
 
 module.exports = mongoose.model('Animal', animalSchema);
