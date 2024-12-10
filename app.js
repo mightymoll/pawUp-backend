@@ -143,6 +143,16 @@ const homePage = process.env.FRONTEND_URL
 
 /* UER AUTHORISATION / AUTHENTICATION */
 
+app.post('/verifyCaptcha', function (req, res) {
+  // verify captcha -> compare value in req.body to captcha value stored in req.session
+  if (req.body.captcha !== req.session.captcha) {
+    res.status(400).send('captcha incorrect')
+  }
+  else {
+    res.status(200).send('captcha verified')
+  }
+})
+
 app.post('/signup', function (req, res) {
   // hash password with bcrypt
   const hashedPwd = bcrypt.hashSync(req.body.password, 10);
@@ -156,22 +166,16 @@ app.post('/signup', function (req, res) {
     password: hashedPwd,
     access: 'public',
   })
-
-  // verify captcha -> compare value in req.body to captcha value stored in req.session
-  if (req.body.captcha !== req.session.captcha) {
-    res.status(400).send('Invalid captcha')
-  }
-
-  else {
-    console.log('captcha verified')
     // save new user in DB
     user.save()
       .then(() => {
         console.log("User created in DB 👤");
         res.status(200).send('User created');
       })
-      .catch(err => console.log(err));
-  }
+      .catch(err => {
+        console.log(err)
+        res.status(500).send('une erreur est servenue, veuillez essayer plus tard')
+      });
 })
 
 // User : data for a single user
@@ -363,7 +367,7 @@ app.post('/addAsso', function (req, res) {
     soc_insta: req.body.soc_insta,
     soc_other: req.body.soc_other
   })
-  // save/add animal data to DB
+  // save/add asso data to DB
   Data.save()
     .then(() => {
       console.log('association added to DB ✨');
@@ -379,6 +383,34 @@ app.get('/asso/:id', function (req, res) {
   Asso.findOne({ _id: req.params.id })
     .then((data) => {
       res.json(data);
+    })
+    .catch(err => console.log(err));
+});
+
+// PUT request to update existing association in DB
+app.put('/update-asso/:id', function (req, res) {
+  console.log(req.params.id);
+
+  const Data = {
+    siret: req.body.siret,
+    name: req.body.name,
+    tel: req.body.tel,
+    email: req.body.email,
+    loc_street: req.body.loc_street,
+    loc_city: req.body.loc_city,
+    loc_postal: req.body.loc_postal,
+    soc_fb: req.body.soc_fb,
+    soc_insta: req.body.soc_insta,
+    soc_other: req.body.soc_other
+  }
+  console.log(Data);
+
+  Asso.updateOne({ _id: req.params.id }, { $set: Data })
+    .then((result) => {
+      console.log('association updated in DB');
+      // status 200 = success, and message to show association was updated
+      res.status(200);
+      res.send('association modified');
     })
     .catch(err => console.log(err));
 });
