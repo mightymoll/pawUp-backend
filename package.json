@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "build": "npm run build"
   },
   "author": "Molly Felts Vallin",
   "license": "ISC",
