@@ -143,6 +143,10 @@ const homePage = process.env.FRONTEND_URL
 
 /* UER AUTHORISATION / AUTHENTICATION */
 
+app.get('/', function (req, res) {
+    res.status(200).json('Welcome, the PawUp backend is up and running');
+})
+
 app.post('/verifyCaptcha', function (req, res) {
   // verify captcha -> compare value in req.body to captcha value stored in req.session
   if (req.body.captcha !== req.session.captcha) {
