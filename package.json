@@ -2,11 +2,10 @@
   "name": "pawup-backend",
   "version": "1.0.0",
   "description": "backend for LGC final project with Nodejs, Express",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "jest --watchAll",
-    "build": "npm run build"
+    "start": "node index.js",
+    "test": "jest --watchAll"
   },
   "author": "Molly Felts Vallin",
   "license": "ISC",

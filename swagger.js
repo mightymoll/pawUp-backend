@@ -10,7 +10,7 @@ const doc = {
 };
 
 const outputFile = './swagger-output.json'
-const routes = ['app.js']
+const routes = ['index.js']
 
 /* if using express router, only pass in the root file 
 where the route starts ie index.js, app.js, routes.js etc */
