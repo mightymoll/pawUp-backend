@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "jest --watchAll",
-    "build": "npm run build"
+    "test": "jest --watchAll"
   },
   "author": "Molly Felts Vallin",
   "license": "ISC",
